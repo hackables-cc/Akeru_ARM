@@ -47,7 +47,7 @@ Serial1     | D0  | D1
 Serial2     | D12 | D10
 Serial3     | D5  | D2
 
-In order to use Serial2 & Serial3 you'll need to modify 2 files, see tutorial on our forum.
+In order to use Serial2 & Serial3 you'll need to modify 2 files, see [tutorial](http://forum.snootlab.com/viewtopic.php?f=51&t=1514) on our forum (in french).
 
 ####Powering up
 

@@ -58,6 +58,7 @@ class Akeru
 		Akeru(Uart *uart);
 		void echoOn();
 		void echoOff();
+		void clearReadBuffer();
 		bool begin();
 		bool isReady();
 		bool sendAT();

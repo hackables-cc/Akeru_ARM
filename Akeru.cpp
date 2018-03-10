@@ -21,6 +21,12 @@
  
 #include "Akeru.h"
 
+// This will redirect the serial prints to the USB.
+#if defined(ARDUINO_SAMD_ZERO) && defined(SERIAL_PORT_USBVIRTUAL)
+  // Required for Serial on Zero based boards
+  #define Serial SERIAL_PORT_USBVIRTUAL
+#endif
+
 Akeru::Akeru(Uart *uart)
 {
 	serialPort = uart;
@@ -30,11 +36,21 @@ Akeru::Akeru(Uart *uart)
 void Akeru::echoOn()
 {
 	_cmdEcho = true;
+	Serial.println("Echo ON!");
 }
 
 void Akeru::echoOff()
 {
-	_cmdEcho = false;
+	_cmdEcho = false;	
+	Serial.println("Echo ON!");
+}
+
+void Akeru::clearReadBuffer()
+{
+  while (serialPort->available())
+  {
+    serialPort->read();
+  }
 }
 
 bool Akeru::begin()
@@ -214,7 +230,8 @@ bool Akeru::receive(String *data)
 	if (sendATCommand(ATDOWNLINK, ATSIGFOXTX_TIMEOUT, data))
 	{
 		// Restart serial interface
-		serialPort->begin(9600);
+		//serialPort->begin(9600);
+		clearReadBuffer();
 		
 		delay(200);	
 		
@@ -238,7 +255,7 @@ bool Akeru::receive(String *data)
 			currentTime = millis();
 		}while(((currentTime - startTime) < ATDOWNLINK_TIMEOUT) && response.endsWith(DOWNLINKEND) == false);
 
-		serialPort->end();
+		//serialPort->end();
 			
 		if (_cmdEcho)
 		{
@@ -395,7 +412,8 @@ String Akeru::toHex(char *c, int length)
 bool Akeru::sendATCommand(const String command, const int timeout, String *dataOut)
 {
 	// Start serial interface
-	serialPort->begin(9600);
+	//serialPort->begin(9600);
+	clearReadBuffer();
 	
 	delay(200);	
 
@@ -441,7 +459,7 @@ bool Akeru::sendATCommand(const String command, const int timeout, String *dataO
 		currentTime = millis();
 	}while(((currentTime - startTime) < timeout) && response.endsWith(ATOK) == false);
 
-	serialPort->end();
+	//serialPort->end();
 	
 	if (_cmdEcho)
 	{
@@ -503,7 +521,10 @@ bool Akeru::sendATCommand(const String command, const int timeout, String *dataO
 	// Check if we have data on the first string and OK on second = data + OK
 	if (firstData != "" && secondData == ATOK)
 	{
-		*dataOut = firstData;
+		if( dataOut != nullptr)
+		{
+			*dataOut = firstData;
+		}
 		return true;
 	}
 	// Check if we have only an OK
